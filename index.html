@@ -64,12 +64,6 @@
     text-transform: uppercase;
   }
 
-  .header-search {
-    flex: 1;
-    min-width: 260px;
-    max-width: 480px;
-  }
-
   .search-wrap {
     position: relative;
     display: flex;
@@ -437,8 +431,7 @@
   .pop-label {
     font-size: 10px;
     color: var(--text-muted);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: 0.03em;
     white-space: nowrap;
   }
 
@@ -465,6 +458,42 @@
     color: var(--text-muted);
     min-width: 20px;
     text-align: right;
+  }
+
+  .pop-inline {
+    font-size: 10px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .pop-inline-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    opacity: 0.6;
+    letter-spacing: 0.04em;
+  }
+
+  .score-label-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .score-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    opacity: 0.6;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .score-label-row .score-bar {
+    flex: 1;
+    margin-top: 0;
   }
 
   .preview-row {
@@ -509,15 +538,25 @@
 
   .card-stage {
     font-size: 10px;
-    padding: 1px 7px;
-    border-radius: 20px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
     color: var(--text-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 130px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .card-stage::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='rgba(240,237,232,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7.5 6 11 6 11S2.5 7.5 2.5 4.5A3.5 3.5 0 0 1 6 1z'/%3E%3Ccircle cx='6' cy='4.5' r='1.2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: 0.7;
   }
 
   /* ── Route card (timeline mode) ──────────────────────────────────────────── */
@@ -853,6 +892,42 @@
   .dot-tags { background: var(--accent2); }
   .dot-genres { background: #a67fff; }
 
+  /* ── Mode tabs ───────────────────────────────────────────────────────────── */
+  .mode-tabs {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    width: fit-content;
+  }
+
+  .mode-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .mode-tab:first-child { border-right: 1px solid var(--border2); }
+
+  .mode-tab.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
+
+  .mode-tab svg { flex-shrink: 0; }
+
   /* ── Artist card buscado ─────────────────────────────────────────────────── */
   #artist-card-wrap { display: none; margin-bottom: 2.5rem; }
 
@@ -963,84 +1038,116 @@
 
 <header>
   <div class="logo-block">
-    <h1>Primavera<span>.</span></h1>
+    <h1>Primavera Sound<span>.</span></h1>
     <p>Recomendador 2026</p>
   </div>
-  <div class="header-search">
-    <div class="search-wrap">
-      <input type="text" id="search-input" placeholder="Busca un artista..." autocomplete="off" />
-      <button onclick="runSearch()">Recomendar</button>
-      <div id="autocomplete-list"></div>
-    </div>
-  </div>
+
 </header>
 
 <main>
   <div id="initial-state" style="display:none"></div>
 
   <div id="app-area" style="display:none">
-    <div class="controls-bar">
-      <div class="param-group">
-        <label>Tags mínimos compartidos</label>
-        <input type="number" id="min-tags" value="2" min="1" max="5">
+
+    <!-- ── Tabs ──────────────────────────────────────────────────────────── -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-recommender" onclick="setTab('recommender')">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5" cy="5" r="3.5"/><path d="M8 8l3 3"/></svg>
+        Recomendador
+      </button>
+      <button class="mode-tab" id="tab-genres" onclick="setTab('genres')">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h9M2 7h6M2 10h3"/></svg>
+        Explorar géneros
+      </button>
+    </div>
+
+    <!-- ── Recommender panel ──────────────────────────────────────────────── -->
+    <div id="panel-recommender">
+      <div style="margin-bottom: 1.2rem;">
+        <p style="font-size:13px; color:var(--text-muted);">Selecciona un artista del lineup de Primavera Sound 2026 y descubre otros artistas del festival con un sonido similar.</p>
       </div>
-      <div class="param-group">
-        <label>Máx. por día</label>
-        <input type="number" id="top-per-day" value="10" min="1" max="30">
-      </div>
-      <div class="param-group">
-        <label>Ordenar por</label>
-        <div class="sort-toggle">
-          <button class="sort-btn" id="btn-sort-time" onclick="setSortMode('time')">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.5 1.5"/></svg>
-            Ruta
-          </button>
-          <button class="sort-btn active" id="btn-sort-match" onclick="setSortMode('match')">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 10 L5 7 L7 9 L10 5"/></svg>
-            Match
-          </button>
+      <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
+        <div class="artist-search-wrap" style="position:relative; flex:1;">
+          <input type="text" id="search-input" placeholder="p.ej. Massive Attack, Bad Gyal, Wet Leg…" autocomplete="off"
+            style="width:100%; background:var(--surface); border:1px solid var(--border2); border-radius:8px; padding:0.75rem 1.1rem; color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; outline:none; transition:border-color 0.2s;"
+            onkeydown="if(event.key==='Enter') runSearch()"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border2)'"
+          />
+          <div id="autocomplete-list"
+            style="position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--surface2); border:1px solid var(--border2); border-radius:8px; max-height:320px; overflow-y:auto; z-index:100; display:none;">
+          </div>
         </div>
-      </div>
-    </div>
-    <div id="status"></div>
-    <div id="artist-card-wrap"></div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot dot-similar"></div> Similares directos (Last.fm)</div>
-      <div class="legend-item"><div class="legend-dot dot-tags"></div> Tags compartidos</div>
-      <div class="legend-item"><div class="legend-dot dot-genres"></div> Géneros Spotify</div>
-    </div>
-    <div class="days-grid" id="results"></div>
-    <div id="empty-state">
-      <h2>Sin resultados</h2>
-      <p>No hay artistas en el lineup similares a este. Prueba con otro nombre.</p>
-    </div>
-<!-- ── Genre Explorer ──────────────────────────────────────────────────── -->
-  <div id="genre-section" style="display:none; margin-top: 3rem;">
-    <div style="border-top: 1px solid var(--border); padding-top: 2.5rem;">
-      <div style="margin-bottom: 1.5rem;">
-        <div style="font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem;">Explorar por género</div>
-        <div style="font-size: 12px; color: var(--text-muted);">Busca un género (shoegaze, post-punk, techno…) o un tag de Last.fm</div>
-      </div>
-      <div class="genre-search-wrap" style="position: relative; display: flex; gap: 10px; max-width: 480px; margin-bottom: 1.2rem;">
-        <input type="text" id="genre-input" placeholder="shoegaze, post-punk, techno…"
-          autocomplete="off"
-          style="flex:1; background:var(--surface); border:1px solid var(--border2); border-radius:8px; padding:0.75rem 1.1rem; color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; outline:none;"
-          onkeydown="if(event.key==='Enter') runGenreSearch()"
-          onfocus="this.style.borderColor='var(--accent)'"
-          onblur="this.style.borderColor='var(--border2)'"
-        />
-        <button onclick="runGenreSearch()"
-          style="background:var(--accent); color:#0a0a0a; border:none; border-radius:8px; padding:0.75rem 1.4rem; font-family:'Syne',sans-serif; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap;">
-          Buscar
+        <button onclick="runSearch()"
+          style="background:var(--accent); color:#0a0a0a; border:none; border-radius:8px; padding:0.75rem 1.4rem; font-family:'Syne',sans-serif; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap; flex-shrink:0;">
+          Recomendar
         </button>
-        <div id="genre-ac-list"
-          style="position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--surface2); border:1px solid var(--border2); border-radius:8px; max-height:260px; overflow-y:auto; z-index:100; display:none;">
+      </div>
+
+      <div class="controls-bar">
+        <div class="param-group">
+          <label>Similitud musical</label>
+          <div class="sort-toggle">
+            <button class="sort-btn" id="btn-prec-low" onclick="setPrecision(1)" title="Más resultados, estilo más amplio">Amplia</button>
+            <button class="sort-btn active" id="btn-prec-mid" onclick="setPrecision(2)" title="Balance entre cantidad y precisión">Normal</button>
+            <button class="sort-btn" id="btn-prec-high" onclick="setPrecision(3)" title="Menos resultados, estilo muy parecido">Estricta</button>
+          </div>
+          <input type="hidden" id="min-tags" value="2">
         </div>
+        <div class="param-group">
+          <label title="Número máximo de artistas recomendados por día del festival.">Artistas por día <span style="color:var(--text-muted);font-size:10px;cursor:help;" title="Número máximo de artistas recomendados por día del festival.">?</span></label>
+          <input type="number" id="top-per-day" value="10" min="1" max="30">
+        </div>
+        <div class="param-group">
+          <label>Ordenar por</label>
+          <div class="sort-toggle">
+            <button class="sort-btn" id="btn-sort-time" onclick="setSortMode('time')">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5V6l1.5 1.5"/></svg>
+              Horario
+            </button>
+            <button class="sort-btn active" id="btn-sort-match" onclick="setSortMode('match')">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 10 L5 7 L7 9 L10 5"/></svg>
+              Similitud
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="status"></div>
+      <div id="artist-card-wrap"></div>
+      <div class="days-grid" id="results"></div>
+      <div id="empty-state">
+        <h2>Sin resultados</h2>
+        <p>No hay artistas en el lineup similares a este. Prueba con otro nombre.</p>
+      </div>
+    </div>
+
+    <!-- ── Genre Explorer panel ───────────────────────────────────────────── -->
+    <div id="panel-genres" style="display:none">
+      <div style="margin-bottom: 1.2rem;">
+        <p style="font-size:13px; color:var(--text-muted);">Busca un género de Spotify o un tag de Last.fm para ver todos los artistas del lineup que lo tienen.</p>
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
+        <div class="genre-search-wrap" style="position:relative; flex:1;">
+          <input type="text" id="genre-input" placeholder="shoegaze, post-punk, techno, neoperreo…"
+            autocomplete="off"
+            style="width:100%; background:var(--surface); border:1px solid var(--border2); border-radius:8px; padding:0.75rem 1.1rem; color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; outline:none; transition: border-color 0.2s;"
+            onkeydown="if(event.key==='Enter') runGenreSearch()"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border2)'"
+          />
+          <div id="genre-ac-list"
+            style="position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--surface2); border:1px solid var(--border2); border-radius:8px; max-height:260px; overflow-y:auto; z-index:100; display:none;">
+          </div>
+        </div>
+        <button onclick="runGenreSearch()"
+          style="background:var(--accent); color:#0a0a0a; border:none; border-radius:8px; padding:0.75rem 1.4rem; font-family:'Syne',sans-serif; font-weight:700; font-size:14px; cursor:pointer; white-space:nowrap; flex-shrink:0;">
+          Explorar
+        </button>
       </div>
       <div id="genre-status" style="font-size:13px; color:var(--text-muted); margin-bottom:1.5rem; min-height:20px;"></div>
       <div class="days-grid" id="genre-results"></div>
     </div>
-  </div>
+
   </div>
 </main>
 
@@ -1096,6 +1203,30 @@ function loadCSV(input) {
 
 
 
+// ── Tab switching ─────────────────────────────────────────────────────────
+function setTab(tab) {
+  const isRecommender = tab === 'recommender';
+  document.getElementById('panel-recommender').style.display = isRecommender ? 'block' : 'none';
+  document.getElementById('panel-genres').style.display = isRecommender ? 'none' : 'block';
+  document.getElementById('tab-recommender').classList.toggle('active', isRecommender);
+  document.getElementById('tab-genres').classList.toggle('active', !isRecommender);
+  // Also update header search placeholder
+  const input = document.getElementById('search-input');
+  if (isRecommender) {
+    input.placeholder = 'p.ej. Massive Attack, Bad Gyal, Wet Leg…';
+  } else {
+    document.getElementById('genre-input').focus();
+  }
+}
+
+// ── Precision mode ───────────────────────────────────────────────────────────
+function setPrecision(val) {
+  document.getElementById('min-tags').value = val;
+  document.getElementById('btn-prec-low').classList.toggle('active', val === 1);
+  document.getElementById('btn-prec-mid').classList.toggle('active', val === 2);
+  document.getElementById('btn-prec-high').classList.toggle('active', val === 3);
+}
+
 // ── Sort mode ────────────────────────────────────────────────────────────────
 function setSortMode(mode) {
   sortMode = mode;
@@ -1118,6 +1249,22 @@ function normalize(s) {
 function parsePipeStr(val) {
   if (!val || String(val).trim() === '') return [];
   return String(val).split('|').map(x => x.trim()).filter(Boolean);
+}
+
+function imgFallbackSc(img) {
+  img.style.display = 'none';
+  const el = document.getElementById('sc-ph');
+  if (el) el.style.display = 'flex';
+}
+
+function imgFallback(img, fallbackId) {
+  img.style.display = 'none';
+  if (fallbackId) {
+    const el = document.getElementById(fallbackId);
+    if (el) el.style.display = 'flex';
+  } else if (img.nextSibling) {
+    img.nextSibling.style.display = 'flex';
+  }
 }
 
 function initials(name) {
@@ -1297,11 +1444,13 @@ function playIconSvg() { return `<svg width="12" height="12" viewBox="0 0 12 12"
 function pauseIconSvg() { return `<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1.5" y="1" width="3.5" height="10" rx="1.2"/><rect x="7" y="1" width="3.5" height="10" rx="1.2"/></svg>`; }
 
 function startPreview(wrap, previewUrl) {
+  const url = previewUrl || wrap.dataset.preview;
+  if (!url) return;
   if (currentWrap === wrap) return;
   stopCurrentAudio();
   if (scAudio && !scAudio.paused) { scAudio.pause(); updateScBtn(false); clearInterval(scTimer); }
 
-  const audio = new Audio(previewUrl);
+  const audio = new Audio(url);
   currentAudio = audio;
   currentWrap = wrap;
   wrap.classList.add('is-playing');
@@ -1323,7 +1472,8 @@ function startPreview(wrap, previewUrl) {
   audio.play().catch(() => stopCurrentAudio());
 }
 
-function onImgClick(wrap, previewUrl) {
+function onImgClick(wrap) {
+  const previewUrl = wrap.dataset.preview;
   if (!previewUrl) return;
   if (currentWrap === wrap) { stopCurrentAudio(); return; }
   startPreview(wrap, previewUrl);
@@ -1341,7 +1491,7 @@ function renderGridCard(r) {
   const hasPreview = r.preview_url && r.preview_url.startsWith('http');
 
   const imgInner = isImg
-    ? `<img class="artist-img" src="${r.image_url}" alt="${r.artist}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+    ? `<img class="artist-img" src="${r.image_url}" alt="${r.artist}" loading="lazy" onerror="imgFallback(this)">
        <div class="artist-img-placeholder" style="display:none">${initials(r.artist)}</div>`
     : `<div class="artist-img-placeholder">${initials(r.artist)}</div>`;
 
@@ -1354,7 +1504,7 @@ function renderGridCard(r) {
     : '';
 
   const previewAttrs = hasPreview
-    ? `class="artist-img-wrap has-preview" onclick="onImgClick(this,'${r.preview_url}')" onmouseenter="onImgMouseEnter(this,'${r.preview_url}')" onmouseleave="onImgMouseLeave(this)"`
+    ? `class="artist-img-wrap has-preview" data-preview="${r.preview_url}" onclick="onImgClick(this)"`
     : `class="artist-img-wrap"`;
 
   const sourceBadge = r.source === 'similar'
@@ -1363,9 +1513,8 @@ function renderGridCard(r) {
     ? `<span class="badge badge-genres">géneros</span>`
     : `<span class="badge badge-tags">tags</span>`;
 
-  const sharedTagsHtml = r.source === 'tags' && r.shared_tags
-    ? r.shared_tags.split('|').slice(0,3).map(t => `<span class="badge badge-tag">${t.trim()}</span>`).join('')
-    : '';
+  const sharedTagsHtml = parsePipeStr(r.lastfm_tags).slice(0, 3)
+    .map(t => `<span class="badge badge-tag">${t.trim()}</span>`).join('');
 
   const fillClass = r.source === 'tags' ? 'score-fill tags' : r.source === 'genres' ? 'score-fill genres' : 'score-fill';
 
@@ -1375,12 +1524,7 @@ function renderGridCard(r) {
 
   const pop = parseInt(r.popularity) || 0;
   const popClass = pop >= 65 ? 'high' : pop >= 35 ? 'mid' : 'low';
-  const popHtml = pop > 0 ? `
-    <div class="popularity-row">
-      <span class="pop-label">pop</span>
-      <div class="pop-bar"><div class="pop-fill ${popClass}" style="width:${pop}%"></div></div>
-      <span class="pop-value">${pop}</span>
-    </div>` : '';
+  const popHtml = pop > 0 ? `<span class="pop-inline" title="Popularidad en Spotify (0–100)"><span class="pop-inline-label">▲</span>${pop}</span>` : '';
 
   const scheduleHtml = (r.start_time || r.stage) ? `
     <div class="card-schedule">
@@ -1389,20 +1533,25 @@ function renderGridCard(r) {
       ${r.stage ? `<span class="card-stage">${r.stage}</span>` : ''}
     </div>` : '';
 
-  const footerHtml = (popHtml || spotifyLink) ? `
+  const footerHtml = (popHtml || spotifyLink || hasPreview) ? `
     <div class="artist-footer">
-      ${popHtml}
-      ${spotifyLink ? `<div class="preview-row" style="justify-content:flex-end">${spotifyLink}</div>` : ''}
+      <div class="preview-row" style="justify-content:space-between;align-items:center;">
+        ${popHtml}
+        ${spotifyLink}
+      </div>
       ${hasPreview ? `<div class="preview-progress"><div class="preview-progress-fill"></div></div>` : ''}
-    </div>` : (hasPreview ? `<div class="artist-footer"><div class="preview-progress"><div class="preview-progress-fill"></div></div></div>` : '');
+    </div>` : '';
 
   return `<div class="artist-card ${r.source === 'similar' ? 'layer-similar' : ''}">
     <div ${previewAttrs}>${imgInner}${overlayIcon}</div>
     <div class="artist-info">
       <div class="artist-name">${r.artist}</div>
       ${scheduleHtml}
-      <div class="artist-meta" style="margin-top:6px">${sourceBadge}${sharedTagsHtml}</div>
-      <div class="score-bar"><div class="${fillClass}" style="width:${pct}%"></div></div>
+      <div class="artist-meta" style="margin-top:6px">${sharedTagsHtml}</div>
+      <div class="score-label-row">
+        <span class="score-label">similitud</span>
+        <div class="score-bar"><div class="${fillClass}" style="width:${pct}%"></div></div>
+      </div>
     </div>
     ${footerHtml}
   </div>`;
@@ -1416,7 +1565,7 @@ function renderRouteCard(r) {
   const hasPreview = r.preview_url && r.preview_url.startsWith('http');
 
   const imgContent = isImg
-    ? `<img class="route-img" src="${r.image_url}" alt="${r.artist}" loading="lazy" onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+    ? `<img class="route-img" src="${r.image_url}" alt="${r.artist}" loading="lazy" onerror="imgFallback(this)">
        <div class="route-img-placeholder" style="display:none">${initials(r.artist)}</div>`
     : `<div class="route-img-placeholder">${initials(r.artist)}</div>`;
 
@@ -1425,7 +1574,7 @@ function renderRouteCard(r) {
     : '';
 
   const imgWrapAttrs = hasPreview
-    ? `class="route-img-wrap has-preview" onclick="onImgClick(this,'${r.preview_url}')" onmouseenter="onImgMouseEnter(this,'${r.preview_url}')" onmouseleave="onImgMouseLeave(this)"`
+    ? `class="route-img-wrap has-preview" data-preview="${r.preview_url}" onclick="onImgClick(this)"`
     : `class="route-img-wrap"`;
 
   const timeDisplay = r.start_time
@@ -1442,9 +1591,8 @@ function renderRouteCard(r) {
     ? `<span class="badge badge-genres" style="font-size:10px;padding:1px 6px">géneros</span>`
     : `<span class="badge badge-tags" style="font-size:10px;padding:1px 6px">tags</span>`;
 
-  const sharedTagsHtml = r.source === 'tags' && r.shared_tags
-    ? r.shared_tags.split('|').slice(0,2).map(t => `<span class="badge badge-tag" style="font-size:10px;padding:1px 6px">${t.trim()}</span>`).join('')
-    : '';
+  const sharedTagsHtml = parsePipeStr(r.lastfm_tags).slice(0, 2)
+    .map(t => `<span class="badge badge-tag" style="font-size:10px;padding:1px 6px">${t.trim()}</span>`).join('');
 
   const fillClass = r.source === 'tags' ? 'route-score-fill tags' : r.source === 'genres' ? 'route-score-fill genres' : 'route-score-fill';
 
@@ -1454,10 +1602,7 @@ function renderRouteCard(r) {
   const rightCol = `
     <div class="route-right">
       ${r.spotify_url ? `<a class="route-spotify" href="${r.spotify_url}" target="_blank" rel="noopener">↗ Spotify</a>` : ''}
-      ${pop > 0 ? `<div class="route-pop">
-        <div class="route-pop-bar"><div class="route-pop-fill ${popClass}" style="width:${pop}%"></div></div>
-        <span class="route-pop-val">${pop}</span>
-      </div>` : ''}
+      ${pop > 0 ? `<span class="pop-inline">${pop}</span>` : ''}
       ${hasPreview ? `<div class="route-preview-bar"><div class="route-preview-fill"></div></div>` : ''}
     </div>`;
 
@@ -1469,7 +1614,7 @@ function renderRouteCard(r) {
     <div ${imgWrapAttrs}>${imgContent}${playOverlay}</div>
     <div class="route-info">
       <div class="route-name">${r.artist}</div>
-      <div class="route-meta">${sourceBadge}${sharedTagsHtml}</div>
+      <div class="route-meta">${sharedTagsHtml}</div>
       <div class="route-bar-row">
         <div class="route-score-bar"><div class="${fillClass}" style="width:${pct}%"></div></div>
       </div>
@@ -1538,7 +1683,7 @@ function renderArtistCard(row) {
   const tags = rawTags.split(sep).map(t => t.trim()).filter(Boolean).slice(0, 5);
 
   const imgHtml = imageUrl
-    ? `<img class="sc-img" src="${imageUrl}" alt="${name}" onerror="this.style.display='none';document.getElementById('sc-ph').style.display='flex';">
+    ? `<img class="sc-img" src="${imageUrl}" alt="${name}" onerror="imgFallback(this, 'sc-ph')">
        <div class="sc-img-placeholder" id="sc-ph" style="display:none">${initials(name)}</div>`
     : `<div class="sc-img-placeholder" id="sc-ph">${initials(name)}</div>`;
 
@@ -1556,7 +1701,7 @@ function renderArtistCard(row) {
       </button>
       <div class="sc-track">
         <div class="sc-track-name">${topTrack}</div>
-        <div class="sc-track-label">canción más popular · preview 30s</div>
+        <div class="sc-track-label">canción más popular</div>
       </div>
       <div class="sc-progress" id="sc-progress" onclick="scSeek(event)">
         <div class="sc-progress-fill" id="sc-progress-fill"></div>
@@ -1586,7 +1731,7 @@ function renderArtistCard(row) {
         <div class="sc-tags">${tags.map(t => `<span class="sc-tag">${t}</span>`).join('')}</div>
         <div class="sc-stats">
           ${followers !== '—' ? `<div class="sc-stat"><strong>${followers}</strong> seguidores</div>` : ''}
-          ${pop > 0 ? `<div class="sc-stat">popularidad <strong>${pop}/100</strong></div>` : ''}
+          ${pop > 0 ? `<div class="sc-stat">popularidad <strong>${pop}</strong></div>` : ''}
         </div>
       </div>
     </div>
@@ -1682,37 +1827,53 @@ function runSearch() {
   }, 50);
 }
 
-// ── Autocomplete ──────────────────────────────────────────────────────────
+// ── Autocomplete — dropdown completo al hacer foco ────────────────────────
 const searchInput = document.getElementById('search-input');
 const acList = document.getElementById('autocomplete-list');
 let acActive = -1;
 
-searchInput.addEventListener('input', function() {
-  const val = normalize(this.value);
+function showAcList(matches) {
   acList.innerHTML = '';
   acActive = -1;
-  if (!val || !artistNames.length) { acList.style.display = 'none'; return; }
-  const matches = artistNames.filter(n => normalize(n).includes(val)).slice(0, 8);
   if (!matches.length) { acList.style.display = 'none'; return; }
   matches.forEach(m => {
     const div = document.createElement('div');
     div.className = 'ac-item';
     div.textContent = m;
-    div.onclick = () => { searchInput.value = m; acList.style.display = 'none'; runSearch(); };
+    div.onclick = () => { searchInput.value = m; acList.style.display = 'none'; };
     acList.appendChild(div);
   });
   acList.style.display = 'block';
+}
+
+// Al hacer foco: muestra todos si el campo está vacío, filtra si tiene texto
+searchInput.addEventListener('focus', function() {
+  if (!artistNames.length) return;
+  const val = normalize(this.value);
+  const matches = val
+    ? artistNames.filter(n => normalize(n).includes(val))
+    : [...artistNames].sort((a, b) => a.localeCompare(b));
+  showAcList(matches);
+});
+
+searchInput.addEventListener('input', function() {
+  if (!artistNames.length) return;
+  const val = normalize(this.value);
+  const matches = val
+    ? artistNames.filter(n => normalize(n).includes(val))
+    : [...artistNames].sort((a, b) => a.localeCompare(b));
+  showAcList(matches);
 });
 
 searchInput.addEventListener('keydown', function(e) {
   const items = acList.querySelectorAll('.ac-item');
-  if (e.key === 'ArrowDown') { acActive = Math.min(acActive + 1, items.length - 1); items.forEach((el, i) => el.classList.toggle('active', i === acActive)); }
-  else if (e.key === 'ArrowUp') { acActive = Math.max(acActive - 1, 0); items.forEach((el, i) => el.classList.toggle('active', i === acActive)); }
+  if (e.key === 'ArrowDown') { acActive = Math.min(acActive + 1, items.length - 1); items.forEach((el, i) => el.classList.toggle('active', i === acActive)); items[acActive]?.scrollIntoView({ block: 'nearest' }); }
+  else if (e.key === 'ArrowUp') { acActive = Math.max(acActive - 1, 0); items.forEach((el, i) => el.classList.toggle('active', i === acActive)); items[acActive]?.scrollIntoView({ block: 'nearest' }); }
   else if (e.key === 'Enter') { if (acActive >= 0) { searchInput.value = items[acActive].textContent; acList.style.display = 'none'; } runSearch(); }
   else if (e.key === 'Escape') { acList.style.display = 'none'; }
 });
 
-document.addEventListener('click', (e) => { if (!e.target.closest('.search-wrap')) acList.style.display = 'none'; });
+document.addEventListener('click', (e) => { if (!e.target.closest('.artist-search-wrap')) acList.style.display = 'none'; });
 
 
 
@@ -1805,7 +1966,7 @@ function renderGenreCard(r) {
 
   const imgInner = isImg
     ? `<img class="artist-img" src="${r.image_url}" alt="${r.artist}" loading="lazy"
-         onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+         onerror="imgFallback(this)">
        <div class="artist-img-placeholder" style="display:none">${initials(r.artist)}</div>`
     : `<div class="artist-img-placeholder">${initials(r.artist)}</div>`;
 
@@ -1817,7 +1978,7 @@ function renderGenreCard(r) {
        </div>` : '';
 
   const previewAttrs = hasPreview
-    ? `class="artist-img-wrap has-preview" onclick="onImgClick(this,'${r.preview_url}')" onmouseenter="onImgMouseEnter(this,'${r.preview_url}')" onmouseleave="onImgMouseLeave(this)"`
+    ? `class="artist-img-wrap has-preview" data-preview="${r.preview_url}" onclick="onImgClick(this)"`
     : `class="artist-img-wrap"`;
 
   const scheduleHtml = (r.start_time || r.stage) ? `
@@ -1834,12 +1995,7 @@ function renderGenreCard(r) {
   const genreTags = (r.genres || '').split(',').map(g => g.trim()).filter(Boolean).slice(0, 3)
     .map(g => `<span class="badge badge-tag">${g}</span>`).join('');
 
-  const popHtml = pop > 0 ? `
-    <div class="popularity-row">
-      <span class="pop-label">pop</span>
-      <div class="pop-bar"><div class="pop-fill ${popClass}" style="width:${pop}%"></div></div>
-      <span class="pop-value">${pop}</span>
-    </div>` : '';
+  const popHtml = pop > 0 ? `<span class="pop-inline" title="Popularidad en Spotify (0–100)"><span class="pop-inline-label">▲</span>${pop}</span>` : '';
 
   return `<div class="artist-card">
     <div ${previewAttrs}>${imgInner}${overlayIcon}</div>
@@ -1946,7 +2102,7 @@ function initGenreAutocomplete() {
   artistNames = df.map(r => r.artist).filter(Boolean);
   document.getElementById('initial-state').style.display = 'none';
   document.getElementById('app-area').style.display = 'block';
-  setStatus('${df.length} artistas cargados — Primavera Sound 2026', 'ok');
+  setStatus(`${df.length} artistas cargados — Primavera Sound 2026`, 'ok');
   initGenreAutocomplete();
 })();
 </script>
