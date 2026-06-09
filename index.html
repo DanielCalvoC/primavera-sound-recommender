@@ -604,15 +604,14 @@
 
   .route-time-end {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--accent);
     text-align: center;
     letter-spacing: -0.01em;
+    opacity: 0.6;
   }
 
   .route-stage-pill {
     font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     color: var(--text-muted);
     text-align: center;
     max-width: 64px;
@@ -620,6 +619,17 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     line-height: 1.3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+  }
+  .route-stage-pill::before {
+    content: '';
+    display: inline-block;
+    width: 7px; height: 7px; flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='rgba(240,237,232,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7.5 6 11 6 11S2.5 7.5 2.5 4.5A3.5 3.5 0 0 1 6 1z'/%3E%3Ccircle cx='6' cy='4.5' r='1.2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain; opacity: 0.7;
   }
 
   /* Middle: image */
@@ -974,10 +984,16 @@
   .sc-time { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: 0.02em; }
 
   .sc-stage {
-    font-size: 11px; padding: 2px 9px; border-radius: 20px;
-    background: var(--accent-dim); border: 1px solid rgba(200,245,90,0.2);
-    color: var(--accent); white-space: nowrap; overflow: hidden;
-    text-overflow: ellipsis; max-width: 180px;
+    font-size: 11px; color: var(--text-muted); white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .sc-stage::before {
+    content: '';
+    display: inline-block;
+    width: 9px; height: 9px; flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='rgba(240,237,232,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7.5 6 11 6 11S2.5 7.5 2.5 4.5A3.5 3.5 0 0 1 6 1z'/%3E%3Ccircle cx='6' cy='4.5' r='1.2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain; opacity: 0.7;
   }
 
   .sc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1053,7 +1069,7 @@
     <div class="mode-tabs">
       <button class="mode-tab active" id="tab-recommender" onclick="setTab('recommender')">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="5" cy="5" r="3.5"/><path d="M8 8l3 3"/></svg>
-        Recomendador
+        Recomendar artistas
       </button>
       <button class="mode-tab" id="tab-genres" onclick="setTab('genres')">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h9M2 7h6M2 10h3"/></svg>
@@ -1088,8 +1104,8 @@
         <div class="param-group">
           <label>Similitud musical</label>
           <div class="sort-toggle">
-            <button class="sort-btn" id="btn-prec-low" onclick="setPrecision(1)" title="Más resultados, estilo más amplio">Amplia</button>
-            <button class="sort-btn active" id="btn-prec-mid" onclick="setPrecision(2)" title="Balance entre cantidad y precisión">Normal</button>
+            <button class="sort-btn" id="btn-prec-low" onclick="setPrecision(1)" title="Más resultados, estilo más amplio">Normal</button>
+            <button class="sort-btn active" id="btn-prec-mid" onclick="setPrecision(2)" title="Balance entre cantidad y precisión">Alta</button>
             <button class="sort-btn" id="btn-prec-high" onclick="setPrecision(3)" title="Menos resultados, estilo muy parecido">Estricta</button>
           </div>
           <input type="hidden" id="min-tags" value="2">
@@ -1124,7 +1140,7 @@
     <!-- ── Genre Explorer panel ───────────────────────────────────────────── -->
     <div id="panel-genres" style="display:none">
       <div style="margin-bottom: 1.2rem;">
-        <p style="font-size:13px; color:var(--text-muted);">Busca un género de Spotify o un tag de Last.fm para ver todos los artistas del lineup que lo tienen.</p>
+        <p style="font-size:13px; color:var(--text-muted);">Busca un estilo musical y descubre qué artistas del festival encajan con ese sonido.</p>
       </div>
       <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
         <div class="genre-search-wrap" style="position:relative; flex:1;">
