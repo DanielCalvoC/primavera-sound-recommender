@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
+    --row-img: 96px;
+    --row-time-w: 54px;
     --bg: #0a0a0a;
     --surface: #141414;
     --surface2: #1e1e1e;
@@ -800,6 +802,12 @@
   }
   .hint-link:hover { text-decoration: none; }
 
+  .build-tag {
+    font-size: 9px; letter-spacing: 0.06em; color: var(--text-muted);
+    border: 1px solid var(--border2); border-radius: 4px; padding: 0 4px;
+    vertical-align: middle; opacity: 0.55;
+  }
+
   /* ── Fila unificada ──────────────────────────────────────────────────────
      Una sola maqueta para recomendador, estilos y cartel. Antes había tres
      funciones (cuadrícula, ruta y géneros) con el mismo 70% de código y tres
@@ -810,14 +818,11 @@
      la imagen acababa diciendo "este tiene muchas etiquetas" — que no significa
      nada — y las filas cargadas salían con fotos enormes. Un solo número aquí
      manda sobre todas. */
-  .artists-list {
-    display: flex; flex-direction: column; gap: 10px;
-    --row-img: 96px; --row-time-w: 72px;
-  }
+  .artists-list { display: flex; flex-direction: column; gap: 10px; }
 
   .row-card {
     display: flex; align-items: flex-start;
-    min-height: calc(var(--row-img) + 24px);
+    min-height: calc(var(--row-img, 96px) + 24px);
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 12px; overflow: hidden;
     transition: border-color 0.2s;
@@ -826,7 +831,7 @@
   .row-card.seeded { border-left: 3px solid var(--seed); }
 
   .row-time {
-    flex: 0 0 var(--row-time-w); width: var(--row-time-w); min-width: 0;
+    flex: 0 0 var(--row-time-w, 54px); width: var(--row-time-w, 54px); min-width: 0;
     padding: 14px 8px 12px 12px;
     display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
   }
@@ -834,15 +839,15 @@
   .row-h2 { font-size: 11px; color: var(--text-muted); }
   .row-h.no-time { color: var(--text-muted); }
   .row-stage {
-    margin-top: 4px; font-size: 9.5px; line-height: 1.2; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: 0.04em;
-    max-width: 100%; overflow-wrap: anywhere;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    font-size: 10px; line-height: 1.2; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: -2px;
   }
 
   .row-img-wrap {
-    position: relative; flex: 0 0 var(--row-img); align-self: flex-start;
-    width: var(--row-img); height: var(--row-img);
+    position: relative; flex: 0 0 var(--row-img, 96px); align-self: flex-start;
+    width: var(--row-img, 96px); height: var(--row-img, 96px);
     margin: 12px 0; border-radius: 8px;
     overflow: hidden; background: var(--surface2);
   }
@@ -872,7 +877,7 @@
 
   .row-info {
     flex: 1; min-width: 0; padding: 12px 14px 12px 14px;
-    display: flex; flex-direction: column; gap: 7px;
+    display: flex; flex-direction: column; gap: 6px;
   }
   .row-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .row-name {
@@ -900,7 +905,7 @@
   .row-spotify:hover { color: var(--text); }
 
   @media (max-width: 600px) {
-    .artists-list { --row-img: 76px; --row-time-w: 56px; }
+    :root { --row-img: 76px; --row-time-w: 48px; }
     .row-actions { flex-wrap: wrap; overflow: visible; }
 
     /* En escritorio caben todos los estilos en una línea; en móvil el ancho útil
@@ -1236,7 +1241,7 @@
 <header>
   <div class="logo-block">
     <h1>Primavera Sound<span>.</span></h1>
-    <p>Del cartel a tu ruta · 2026</p>
+    <p>Del cartel a tu ruta · 2026 <span class="build-tag" title="Versión desplegada">b15</span></p>
   </div>
 
 </header>
@@ -2554,11 +2559,11 @@ function renderRow(r, opts) {
       ${r.start_time
         ? `<span class="row-h">${r.start_time}</span>${r.end_time ? `<span class="row-h2">${r.end_time}</span>` : ''}`
         : `<span class="row-h no-time">–</span>`}
-      ${r.stage ? `<span class="row-stage">${r.stage}</span>` : ''}
     </div>
     <div ${imgAttrs}>${imgInner}${playHtml}</div>
     <div class="row-info">
       <div class="row-head"><span class="row-name">${r.artist}</span>${popHtml}${otherPassesHint(r, true)}</div>
+      ${r.stage ? `<div class="row-stage" title="${escAttr(r.stage)}">${r.stage}</div>` : ''}
       ${originHtml}
       <div class="row-badges">${tagsHtml}</div>
       <div class="row-actions">${planRowHtml(r)}${seedBtnHtml}${spotifyHtml}</div>
